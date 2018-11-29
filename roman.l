@@ -1,5 +1,5 @@
 %{
-#include "roman.tab.h"
+#include "romcalc.tab.h"
 void yyerror(char *s);
 %}
 
@@ -12,7 +12,14 @@ void yyerror(char *s);
 "C"     { yylval = 100; return C; }
 "D"     { yylval = 500; return D; }
 "M"     { yylval = 1000; return M; }
+"+"     { return '+'; }
+"-"     { return '-'; }
+"*"     { return '*'; }
+"/"     { return '/'; }
+"{"     { return '{'; }
+"}"     { return '}'; }
 \n      { return EOL; }
+" "     { }
 .       { yyerror("syntax error"); return 0; }
 
 %%

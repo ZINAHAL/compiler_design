@@ -1,7 +1,12 @@
 %{
   #include <stdio.h>
+
   int yylex();
   void yyerror(char const *);
+  int abs(int);
+
+  int decimal[] = {1000,900,500,400,100,90,50,40,10,9,5,4,1}; //base values
+  char *symbol[] = {"M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"};
 %}
 
 %token I V X L C D M EOL
@@ -9,9 +14,46 @@
 %%
 input: 
   %empty                                                  
-| input roman EOL           { printf("%d\n", $2); }
+| input romanexp EOL                  {
+                                        if($2 == 0)
+                                        {
+                                          printf("Z");
+                                        }else if($2 < 0)
+                                        {
+                                          printf("-");
+                                          $2 = abs($2);
+                                        }
+
+                                        int i = 0;
+                                        while($2)
+                                        {
+                                            while($2/decimal[i])
+                                            {  
+                                              printf("%s",symbol[i]);
+                                              $2 -= decimal[i];  
+                                            }
+                                            i++;    
+                                        }
+                                        printf("\n");
+                                      }
 ;
 
+romanexp:
+  factor
+| romanexp '+' factor                 { $$ = $1 + $3; }
+| romanexp '-' factor                 { $$ = $1 - $3; }
+;
+
+factor:
+  bracketexps
+| factor '*' bracketexps              { $$ = $1 * $3; }
+| factor '/' bracketexps              { $$ = $3 == 0 ? printf("undefined\n") : $1 / $3; }
+;
+
+bracketexps:
+  roman
+| '{' romanexp '}'                    { $$ = $2; }
+;
 
 roman: thousands hundreds tens units  { $$ = $1 + $2 + $3 + $4; } ;
 
